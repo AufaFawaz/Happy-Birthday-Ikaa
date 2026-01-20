@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interface Netflix dengan Navigasi Panah</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Untuk ikon -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #141414;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #000;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .left-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo img {
+            height: 40px;
+            
+        }
+        .nav {
+            display: flex;
+            gap: 20px;
+        }
+        .nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+        .nav a:hover {
+            color: #e50914;
+        }
+        .right-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .right-section i {
+            font-size: 20px;
+            cursor: pointer;
+            color: white;
+            transition: color 0.3s;
+        }
+        .right-section i:hover {
+            color: #e50914;
+        }
+        .profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 70%;
+            cursor: pointer;
+            margin-right: 40px;
+        }
+        .container {
+            padding: 20px;
+            margin-top: 60px; /* Offset untuk header fixed */
+        }
+        .video-section {
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+        .thumbnail {
+            width: 100%;
+            max-width: 100%;
+            height: 800px;
+            background-image: url('images/thumbnail.jpg');
+            background-size: cover;
+            background-position: center;
+            border-radius: 5px;
+            position: relative;
+            cursor: pointer;
+        }
+        .video-controls {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            display: flex;
+            gap: 15px;
+        }
+        .play-button {
+            background-color: white;
+            color: black;
+            border: none;
+            padding: 13px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.3s;
+        }
+        .play-button:hover {
+            background-color: #ccc;
+        }
+        .play-button::before {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 8px solid black;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+        }
+        .info-button {
+            background-color: #666;
+            color: white;
+            border: none;
+            padding: 13px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .info-button:hover {
+            background-color: #888;
+        }
+        .video-section video {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            display: none;
+        }
+        .greeting-section {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+        .greeting-left {
+            flex: 1;
+            padding-right: 20px;
+        }
+        .greeting-left h2 {
+            color: #e50914;
+            margin-bottom: 10px;
+        }
+        .greeting-left p {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .section {
+            margin-bottom: 40px;
+            position: relative;
+        }
+        .section h2 {
+            margin-bottom: 20px;
+        }
+        .row-container {
+            position: relative;
+            overflow: hidden;
+        }
+        .row {
+            display: flex;
+            overflow-x: hidden;
+            margin-bottom: 20px;
+            scroll-behavior: smooth;
+        }
+        .arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    transition: opacity 0.3s, background-color 0.3s;
+}
+
+.row-container:hover .arrow {
+    opacity: 1;
+}
+
+        }
+        .arrow:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        .arrow-left {
+            left: 10px;
+        }
+        .arrow-right {
+            right: 10px;
+        }
+        .movie {
+            flex: 0 0 200px;
+            margin-right: 10px;
+            position: relative;
+            cursor: pointer;
+        }
+        .movie img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 5px;
+            transition: opacity 0.3s;
+        }
+        .movie:hover img {
+            opacity: 0.3;
+        }
+        .movie .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+        }
+        .movie:hover .overlay {
+            opacity: 1;
+        }
+        .movie .overlay h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+        }
+        .movie .overlay p {
+            margin: 0;
+            font-size: 14px;
+        }
+        .movie button {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .movie button:hover {
+            background-color: rgba(0,0,0,0.9);
+        }
+        
+    </style>
+</head>
+<body>
+    <header>
+        <div class="left-section">
+            <div class="logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/Logonetflix.png" alt="Netflix Logo">
+            </div>
+            <nav class="nav">
+                <a href="#home">Beranda</a>
+                <a href="#tvshows">TV Shows</a>
+                <a href="#movies">Movies</a>
+                <a href="#newpopular">New & Popular</a>
+                <a href="#mylist">My List</a>
+            </nav>
+        </div>
+        <div class="right-section">
+            <i class="fas fa-search"></i> <!-- Logo search -->
+            <i class="fas fa-bell"></i> <!-- Logo notifikasi -->
+            <div class="profile">
+                <img src="images/q.jpeg" alt="Profile"> <!-- Foto profil kecil -->
+            </div>
+        </div>
+    </header>
+    <div class="container" id="home">
+        <div class="video-section">
+            <h2>HAPPY BIRTHDAY SAYANG</h2>
+    
+            <div class="thumbnail"  id="thumbnail">
+                
+                <div class="video-controls">
+                    <button class="play-button" onclick="playVideo()">Putar</button>
+                    <button class="info-button" onclick="showInfo()">Info Selengkapnya</button>
+                </div>
+            </div>
+            
+                
+            <video id="video" controls>
+                <source src="images/video.MOV" type="video/mp4">
+                Browser Anda tidak mendukung tag video.
+            </video>
+        </div>
+        
+        <div class="greeting-section">
+            <div class="greeting-left">
+                <h2>Selamat Ulang Tahun Sayangkuu</h2>
+                <p>Semoga di hari ulang tahun ika kali ini penuh kebahagiaan, kesehatan, dan kesuksesan. Terus bermimpi seolah-olah mimpi itu mustahil ya sayangg dan usahakan mimpinya. 
+                    Upa di sini untuk membuktikan di momen spesial ini upa ada disamping ikaa, jangan sering sedih lagi yaa sayangg kalo ada apa-apa kabarin upa langsung yaa!</p>
+            </div>
+        </div>
+        
+        
+        <div class="section">
+            <h2>Foto Favorit</h2>
+            <div class="row-container">
+                <button class="arrow arrow-left" onclick="scrollRow(this, -1)">&lt;</button>
+                <div class="row">
+                    <!-- 15 poster untuk Film Populer -->
+                    <div class="movie">
+                        <img src="images/Foto Favorit/1.JPG">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                    
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Favorit/2.JPG">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                        
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Favorit/3.JPG">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                        
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Favorit/4.JPG">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                      
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Favorit/5.JPG">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                        
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Favorit/6.HEIC">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                       
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Favorit/7.HEIC">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                      
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Favorit/8.HEIC">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                     >
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Favorit/9.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                        
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Favorit/0.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                    
+                    </div>
+                    
+                </div>
+                <button class="arrow arrow-right" onclick="scrollRow(this, 1)">&gt;</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Foto Random</h2>
+            <div class="row-container">
+                <button class="arrow arrow-left" onclick="scrollRow(this, -1)">&lt;</button>
+                <div class="row">
+                    <!-- 15 poster untuk Film Populer -->
+                    <div class="movie">
+                        <img src="images/Foto Random/1.JPG">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                    
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Random/2.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                        
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Random/3.JPG">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                        
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Random/4.JPG">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                      
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Random/5.JPG">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                        
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Random/6.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                       
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Random/7.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                      
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Random/8.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                     >
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Random/9.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                        
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Random/0.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                    
+                    </div>
+                    
+                </div>
+                <button class="arrow arrow-right" onclick="scrollRow(this, 1)">&gt;</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Foto Kita</h2>
+            <div class="row-container">
+                <button class="arrow arrow-left" onclick="scrollRow(this, -1)">&lt;</button>
+                <div class="row">
+                    <!-- 15 poster untuk Film Populer -->
+                    <div class="movie">
+                        <img src="images/Foto Kita/1.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                    
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Kita/2.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                        
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Kita/3.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                        
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Kita/4.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                      
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Kita/5.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                        
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Kita/6.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                       
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Kita/7.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                      
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Kita/8.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                     >
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Kita/9.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                        
+                    </div>
+                    <div class="movie">
+                        <img src="images/Foto Kita/0.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                    
+                    </div>
+                    
+                </div>
+                <button class="arrow arrow-right" onclick="scrollRow(this, 1)">&gt;</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>PhotoBooth</h2>
+            <div class="row-container">
+                <button class="arrow arrow-left" onclick="scrollRow(this, -1)">&lt;</button>
+                <div class="row">
+                    <!-- 15 poster untuk Film Populer -->
+                    <div class="movie">
+                        <img src="images/Photobooth/1.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                    
+                    </div>
+                    <div class="movie">
+                        <img src="images/Photobooth/2.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                        
+                    </div>
+                    <div class="movie">
+                        <img src="images/Photobooth/3.jpeg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                        
+                    </div>
+                    <div class="movie">
+                        <img src="images/Photobooth/4.jpeg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                      
+                    </div>
+                    <div class="movie">
+                        <img src="images/Photobooth/5.jpeg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                        
+                    </div>
+                    <div class="movie">
+                        <img src="images/Photobooth/6.jpeg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                       
+                    </div>
+                    <div class="movie">
+                        <img src="images/Photobooth/7.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                      
+                    </div>
+                    <div class="movie">
+                        <img src="images/Photobooth/8.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                     >
+                    </div>
+                    <div class="movie">
+                        <img src="images/Photobooth/9.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                        
+                    </div>
+                    <div class="movie">
+                        <img src="images/Photobooth/0.jpg">
+                        <div class="overlay">
+                            <h3>10/10</h3>
+                            <p></p>
+                        </div>
+                    
+                    </div>
+                    
+                </div>
+                <button class="arrow arrow-right" onclick="scrollRow(this, 1)">&gt;</button>
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        function playVideo() {
+            const thumbnail = document.getElementById('thumbnail');
+            const video = document.getElementById('video');
+            thumbnail.style.display = 'none';
+            video.style.display = 'block';
+            video.play();
+        }
+        
+        function showInfo() {
+            alert("Info Selengkapnya: Trailer untuk film terbaru.");
+        }
+        
+        function gantiGambar(id) {
+            const img = document.getElementById(id);
+            const newSrc = prompt("Masukkan URL gambar baru:");
+            if (newSrc) img.src = newSrc;
+        }
+        
+        function scrollRow(button, direction) {
+            const rowContainer = button.parentElement;
+            const row = rowContainer.querySelector('.row');
+        
+            const scrollAmount = rowContainer.offsetWidth - 100;
+        
+            row.scrollBy({
+                left: direction * scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+        
+        /* ===== SWIPE GESER DI HP ===== */
+        let startX = 0;
+        let isDown = false;
+        
+        document.querySelectorAll('.row').forEach(row => {
+            row.addEventListener('touchstart', e => {
+                startX = e.touches[0].pageX;
+                isDown = true;
+            });
+        
+            row.addEventListener('touchmove', e => {
+                if (!isDown) return;
+                const x = e.touches[0].pageX;
+                const walk = startX - x;
+                row.scrollLeft += walk;
+                startX = x;
+            });
+        
+            row.addEventListener('touchend', () => {
+                isDown = false;
+            });
+        });
+
+    
+        </script>
+        
